@@ -100,11 +100,28 @@ export class AuditParser {
       .limit(1);
   }
 
+  requirementIdMap = new Map<string, string>();
   generateRequirementId(rule: Rule): string {
-    const uniqueString = [rule.label, rule.labelTag, rule.ruleType, rule.ruleId, rule.nodeId].join(
-      "_",
-    );
-    const requirementId = createHash("md5").update(uniqueString).digest("hex");
+    const requirementObjectStr = JSON.stringify({
+      label: rule.label,
+      labelTag: rule.labelTag,
+      ruleType: rule.ruleType,
+      ruleId: rule.ruleId,
+      nodeId: rule.nodeId,
+    });
+
+    const requirementId = createHash("md5")
+      .update(requirementObjectStr)
+      .digest("base64")
+      .slice(0, 10);
+
+    if (
+      this.requirementIdMap.has(requirementId) &&
+      this.requirementIdMap.get(requirementId) !== requirementObjectStr
+    ) {
+      console.log("Collision detected between two requirementIds");
+    }
+    this.requirementIdMap.set(requirementId, requirementObjectStr);
 
     return requirementId;
   }

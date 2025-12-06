@@ -1,0 +1,2 @@
+ALTER TABLE "college_requirement" DROP CONSTRAINT "college_requirement_requirements_unique";--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "college_requirement_requirements_unique_hash" ON "college_requirement" USING btree (md5("requirements"));

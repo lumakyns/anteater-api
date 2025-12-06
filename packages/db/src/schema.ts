@@ -20,7 +20,6 @@ import {
 import { aliasedTable } from "./drizzle.ts";
 
 // Types
-
 export type HourMinute = { hour: number; minute: number };
 
 export type TBAWebsocSectionMeeting = { timeIsTBA: true };
@@ -626,11 +625,17 @@ export const schoolRequirement = pgTable("school_requirement", {
   requirements: json("requirements").$type<DegreeWorksRequirement[]>().notNull(),
 });
 
-export const collegeRequirement = pgTable("college_requirement", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name").notNull(),
-  requirements: jsonb("requirements").$type<DegreeWorksRequirement[]>().unique().notNull(),
-});
+export const collegeRequirement = pgTable(
+  "college_requirement",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: varchar("name").notNull(),
+    requirements: jsonb("requirements").$type<DegreeWorksRequirement[]>().notNull(),
+  },
+  (table) => [
+    uniqueIndex("college_requirement_requirements_unique_hash").on(sql`md5(${table.requirements})`),
+  ],
+);
 
 export const major = pgTable(
   "major",
